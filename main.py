@@ -12,13 +12,13 @@ class YouTubeSummaryApp:
         
         # Загружаем модель для суммаризации
         self.summarizer = pipeline(
-            "summarization",
-            model="IlyaGusev/mbart_ru_sum_gazeta",
-            tokenizer="IlyaGusev/mbart_ru_sum_gazeta"
+            task = "summarization",
+            model = "IlyaGusev/mbart_ru_sum_gazeta",
+            tokenizer = "IlyaGusev/mbart_ru_sum_gazeta"
         )
     
     def download_audio(self, youtube_url):
-        """Скачиваем аудио с YouTube"""
+        # Скачиваем аудио с YouTube
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': '%(title)s.%(ext)s',
@@ -35,12 +35,12 @@ class YouTubeSummaryApp:
             return audio_file, info['title']
     
     def transcribe_audio(self, audio_path):
-        """Транскрибируем аудио в текст"""
+        # Транскрибируем аудио в текст
         result = self.model.transcribe(audio_path)
         return result["text"]
     
     def generate_summary(self, text, num_points=10):
-        """Генерируем ключевые мысли"""
+        # Генерируем ключевые мысли
         # Очищаем текст
         text = self.clean_text(text)
         
@@ -66,13 +66,13 @@ class YouTubeSummaryApp:
         return summaries[:num_points]
     
     def clean_text(self, text):
-        """Очищаем текст от лишних символов"""
+        # Очищаем текст от лишних символов
         text = re.sub(r'\s+', ' ', text)
         text = re.sub(r'[^\w\s\.\,\!\?\-]', '', text)
         return text.strip()
     
     def split_text(self, text, max_length=1000):
-        """Разбиваем текст на части"""
+        # Разбиваем текст на части
         sentences = text.split('.')
         chunks = []
         current_chunk = ""
@@ -91,7 +91,7 @@ class YouTubeSummaryApp:
         return chunks
     
     def extract_key_sentences(self, text, num_sentences=10):
-        """Извлекаем ключевые предложения (простой подход)"""
+        # Извлекаем ключевые предложения (простой подход)
         sentences = text.split('.')
         # Сортируем предложения по длине (как простой показатель важности)
         key_sentences = sorted(
@@ -103,15 +103,15 @@ class YouTubeSummaryApp:
         return [s for s in key_sentences if s]
     
     def process_video(self, youtube_url):
-        """Основной метод обработки видео"""
+        # Основной метод обработки видео
         try:
-            print("📥 Скачиваем аудио...")
+            print("Скачиваем аудио...")
             audio_file, title = self.download_audio(youtube_url)
             
-            print("🎙️ Транскрибируем аудио...")
+            print("Транскрибируем аудио...")
             text = self.transcribe_audio(audio_file)
             
-            print("🧠 Анализируем текст...")
+            print("Анализируем текст...")
             key_points = self.generate_summary(text)
             
             # Удаляем временный аудиофайл
@@ -130,7 +130,7 @@ class YouTubeSummaryApp:
 def main():
     app = YouTubeSummaryApp()
     
-    print("🎯 YouTube Summary Generator")
+    print("YouTube Summary Generator")
     print("=" * 40)
     
     youtube_url = input("Введите URL YouTube видео: ")
@@ -138,7 +138,7 @@ def main():
     result = app.process_video(youtube_url)
     
     if "error" in result:
-        print(f"❌ Ошибка: {result['error']}")
+        print(f"Ошибка: {result['error']}")
         return
     
     # Сохраняем результаты в файл
@@ -153,15 +153,14 @@ def main():
             f.write(f"{i}. {point}\n")
         
         f.write("\n" + "=" * 50 + "\n")
-        f.write("📝 Полный текст транскрибации:\n\n")
+        f.write("Полный текст транскрибации:\n\n")
         f.write(result['transcription'])
     
-    print(f"\n✅ Готово! Результаты сохранены в файл: {filename}")
-    print(f"\n🎯 Ключевые мысли ({len(result['key_points']}):")
+    print(f"\n Результаты сохранены в файл: {filename}")
+    #print(f"\n Ключевые мысли ({len(result['key_points']})):")
     print("-" * 40)
     
     for i, point in enumerate(result['key_points'], 1):
         print(f"{i}. {point}")
 
-if __name__ == "__main__":
-    main()
+main()
